@@ -1792,8 +1792,22 @@
     setBubble(`Welcome, <b>${esc(playerName)}</b>! 🌿<br>Help <b>them</b> get to work!<br>Tap on a character to get started.`);
   }
 
-  startBtn.addEventListener('click', e => { e.stopPropagation(); startGame(); });
-  nameInput.addEventListener('keydown', e => { if(e.key === 'Enter') startGame(); });
+  /* v51: enter browser fullscreen (same as pressing F11) on the Start tap.
+     Works on Chrome for Android/tablets and laptop browsers. Skipped when
+     the app is already running as an installed PWA (manifest handles it),
+     and fails silently anywhere it's unsupported. */
+  function enterFullscreen(){
+    try{
+      if (window.matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches) return;
+      if (document.fullscreenElement || document.webkitFullscreenElement) return;
+      const el = document.documentElement;
+      const req = el.requestFullscreen || el.webkitRequestFullscreen;
+      if (req){ const p = req.call(el); if (p && p.catch) p.catch(()=>{}); }
+    }catch(e){}
+  }
+
+  startBtn.addEventListener('click', e => { e.stopPropagation(); enterFullscreen(); startGame(); });
+  nameInput.addEventListener('keydown', e => { if(e.key === 'Enter'){ enterFullscreen(); startGame(); } });
   // taps on the welcome screen shouldn't fall through to the map
   welcome.addEventListener('click', e => e.stopPropagation());
 
