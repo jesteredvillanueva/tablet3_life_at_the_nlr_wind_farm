@@ -45,13 +45,13 @@
   .app{position:relative;z-index:1}
 
   .app{
-    --tb: clamp(64px, 16vh, 150px);   /* header height */
+    --tb: clamp(56px, 13.5vh, 132px);   /* header height (v49: trimmed to give the map more room) */
     display:flex;flex-direction:column;gap:8px;
     width:min(100vw - 10px, calc((100vh - 18px - var(--tb)) * (1535 / 1024)), 1535px);
   }
   @supports (width: 1dvw){
     .app{
-      --tb: clamp(64px, 16dvh, 150px);
+      --tb: clamp(56px, 13.5dvh, 132px);
       width:min(100dvw - 10px, calc((100dvh - 18px - var(--tb)) * (1535 / 1024)), 1535px);
     }
   }
@@ -654,13 +654,23 @@
       radial-gradient(90vw 22vh at 50% 116%, #69b953 59%, rgba(0,0,0,0) 60%),
       linear-gradient(180deg,#8fd4f4,#bfe9ff 55%,#dbf4ff);
   }
-  /* The map + everything pinned to it. Fills 100% of the width whenever
-     the aspect-preserving top-crop stays <=12% (covers all tablets);
-     on ultra-wide screens it caps there and scenery fills the slim sides. */
+  /* The map + everything pinned to it. ELASTIC COVER (v49):
+     natural map ratio is 1535/1024 (~1.50). To fill the screen we
+     1) stretch the painted map horizontally up to --r-max (sprites, signs
+        and name pills are height-based / %-anchored, so they never distort);
+     2) past that, grow bottom-anchored and crop decorative TOP sky only,
+        up to a combined width of --r-crop x height (crop tops out ~11%);
+     3) any sliver left on ultra-wide screens shows the scenery sides.
+     Tall/square screens may squeeze down to --r-min before letterboxing. */
   .scene{
+    --r-max: 1.78;   /* max horizontal stretch of the artwork */
+    --r-min: 1.40;   /* max vertical squeeze of the artwork */
+    --r-crop: 2.0;   /* stretch + top-crop budget (width vs height) */
     position:absolute;bottom:0;left:50%;transform:translateX(-50%);
-    width:min(100cqw, calc(100cqh * (1535 / 1024)));  /* contain: whole map, always */
-    aspect-ratio:1535 / 1024;
+    width:min(100cqw, calc(100cqh * var(--r-crop)));
+    height:clamp(calc(min(100cqw, 100cqh * var(--r-crop)) / var(--r-max)),
+                 100cqh,
+                 calc(100cqw / var(--r-min)));
     container-type:size;
     z-index:1;
     border-radius:18px 18px 0 0;
