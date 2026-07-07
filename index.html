@@ -659,13 +659,13 @@
      1) stretch the painted map horizontally up to --r-max (sprites, signs
         and name pills are height-based / %-anchored, so they never distort);
      2) past that, grow bottom-anchored and crop decorative TOP sky only,
-        up to a combined width of --r-crop x height (crop tops out ~11%);
+        up to a combined width of --r-crop x height (crop disabled in v50: full map always visible);
      3) any sliver left on ultra-wide screens shows the scenery sides.
      Tall/square screens may squeeze down to --r-min before letterboxing. */
   .scene{
     --r-max: 1.78;   /* max horizontal stretch of the artwork */
     --r-min: 1.40;   /* max vertical squeeze of the artwork */
-    --r-crop: 2.0;   /* stretch + top-crop budget (width vs height) */
+    --r-crop: 1.78;  /* = --r-max: NO top-crop, full map always visible (v50) */
     position:absolute;bottom:0;left:50%;transform:translateX(-50%);
     width:min(100cqw, calc(100cqh * var(--r-crop)));
     height:clamp(calc(min(100cqw, 100cqh * var(--r-crop)) / var(--r-max)),
