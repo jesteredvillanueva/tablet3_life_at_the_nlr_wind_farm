@@ -39,6 +39,21 @@
       width:min(100dvw - 10px, calc((100dvh - 18px - var(--tb)) * (1535 / 1024)), 1535px);
     }
   }
+
+  /* ---------- Kiosk fill mode: use the whole screen on landscape tablets ---------- */
+  @media (orientation:landscape) and (min-aspect-ratio:4/3) and (max-aspect-ratio:16/9){
+    body{padding:0}
+    .app{
+      width:100vw;height:100vh;
+      padding:6px 8px 8px;gap:6px;box-sizing:border-box;
+    }
+    @supports (height: 1dvh){ .app{ height:100dvh; width:100dvw } }
+    .stage{
+      aspect-ratio:auto;flex:1;min-height:0;
+      border-radius:14px;
+    }
+  }
+
   .topbar{
     height:var(--tb);
     display:flex;align-items:center;gap:12px;
@@ -56,7 +71,7 @@
     box-shadow:0 18px 50px rgba(35,60,20,.35);
     background:#bfe9ff;
   }
-  .map{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+  .map{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;display:block;pointer-events:none}
 
   /* ---------- Title banner (in the header bar) ---------- */
   .banner{
@@ -90,7 +105,7 @@
 
   /* ---------- Hint speech bubble (in the header, Mappy speaking) ---------- */
   .bubble{
-    position:relative;flex:0 1 auto;min-width:0;
+    position:relative;flex:0 1 auto;min-width:min(30%, 32ch);
     max-width:44%;
     background:#fffef7;border:4px solid #f0b429;
     border-radius:16px;padding:.55em .8em;
