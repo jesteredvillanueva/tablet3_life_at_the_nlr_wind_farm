@@ -20,7 +20,8 @@
   html,body{height:100%;margin:0}
   body{
     font-family:"Baloo 2","Fredoka",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-    background:#bfe9ff;
+    background:linear-gradient(180deg,#8fd4f4 0%,#bfe9ff 48%,#dbf4ff 100%);
+    position:relative;
     display:flex;align-items:center;justify-content:center;
     overflow:hidden;color:#33291c;user-select:none;
   }
@@ -28,6 +29,21 @@
   /* App = header bar (title + Mappy's bubble) stacked above the map, so
      nothing covers the artwork's sun and clouds. The map width accounts for
      the header height so the whole app always fits the visible viewport. */
+
+  /* ---------- Scenic page frame (fills leftover space on wide screens) ---------- */
+  body::before{
+    content:"";position:fixed;left:-10vw;right:-10vw;bottom:0;height:34vh;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(58vw 30vh at 12% 118%, #8ed276 59%, transparent 60%),
+      radial-gradient(64vw 34vh at 88% 122%, #7ac562 59%, transparent 60%),
+      radial-gradient(90vw 26vh at 50% 128%, #69b953 59%, transparent 60%);
+  }
+  body::after{
+    content:"";position:fixed;left:0;right:0;bottom:0;height:7vh;z-index:0;pointer-events:none;
+    background:linear-gradient(180deg,#5cb247,#4c9c3a);
+  }
+  .app{position:relative;z-index:1}
+
   .app{
     --tb: clamp(64px, 16vh, 150px);   /* header height */
     display:flex;flex-direction:column;gap:8px;

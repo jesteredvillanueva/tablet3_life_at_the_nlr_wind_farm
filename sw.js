@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nlr-windfarm-v41';
+const CACHE_NAME = 'nlr-windfarm-v42';
 const ASSETS = [
   './',
   './index.html',
