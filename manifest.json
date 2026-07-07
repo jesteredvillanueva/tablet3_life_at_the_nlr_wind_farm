@@ -2,6 +2,7 @@
   "name": "Life at the NLR Wind Farm",
   "short_name": "NLR Wind Farm",
   "description": "Meet the crew of the North Luzon Renewables wind farm! An interactive explorer game for the DOE Energy Museum.",
+  "id": "./",
   "start_url": "./index.html",
   "scope": "./",
   "display": "fullscreen",
@@ -9,17 +10,9 @@
   "background_color": "#2e7d32",
   "theme_color": "#2e7d32",
   "icons": [
-    {
-      "src": "./icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "./icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
