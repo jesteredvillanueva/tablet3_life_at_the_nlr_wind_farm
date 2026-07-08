@@ -710,9 +710,38 @@
   @keyframes rnspin{0%,20%{transform:rotate(0)}60%,100%{transform:rotate(90deg)}}
   @media (orientation:portrait){ .rotate-note{display:flex} }
   @media (prefers-reduced-motion: reduce){ .rotate-note .rn-icon{animation:none;transform:rotate(90deg)} }
+
+  /* ---------- Offline-ready status pill (on-site tablet setup) ---------- */
+  #offline-pill{
+    position:fixed; left:50%; transform:translateX(-50%);
+    bottom:calc(env(safe-area-inset-bottom,0px) + 12px);
+    z-index:99999; display:none; align-items:center; gap:9px;
+    padding:9px 16px; border-radius:999px;
+    font-family:inherit; font-weight:800; font-size:14px; line-height:1;
+    letter-spacing:.2px; white-space:nowrap; max-width:94vw;
+    box-shadow:0 6px 18px rgba(0,0,0,.28);
+    border:2px solid rgba(255,255,255,.55);
+    cursor:pointer; -webkit-user-select:none; user-select:none;
+    transition:opacity .5s ease;
+  }
+  #offline-pill.show{display:inline-flex}
+  #offline-pill .op-dot{width:9px;height:9px;border-radius:50%;background:currentColor;flex:0 0 auto}
+  #offline-pill.state-prep{
+    background:linear-gradient(180deg,#e6a52e,#c8891f); color:#3a2708;
+    animation:opPulse 1.2s ease-in-out infinite;
+  }
+  #offline-pill.state-ready{background:linear-gradient(180deg,#43a047,#2e7d32); color:#fff}
+  #offline-pill.state-warn{background:linear-gradient(180deg,#e0902a,#b8791f); color:#fff}
+  #offline-pill.fade{opacity:0; pointer-events:none}
+  @keyframes opPulse{
+    0%,100%{box-shadow:0 6px 18px rgba(0,0,0,.28), 0 0 0 0 rgba(230,165,46,.45)}
+    50%{box-shadow:0 6px 18px rgba(0,0,0,.28), 0 0 0 8px rgba(230,165,46,0)}
+  }
+  @media (prefers-reduced-motion: reduce){ #offline-pill.state-prep{animation:none} }
 </style>
 </head>
 <body>
+  <div id="offline-pill" role="status" aria-live="polite" title="Tap to dismiss"><span class="op-dot"></span><span id="offline-pill-text">Preparing offline copy…</span></div>
   <div class="app welcoming" id="app">
   <header class="topbar">
     <div class="banner">Life at the NLR Wind Farm</div>
@@ -1821,9 +1850,78 @@
   });
 
   /* ---------- PWA: service worker + install button ---------- */
-  if('serviceWorker' in navigator){
-    window.addEventListener('load', ()=> navigator.serviceWorker.register('./sw.js').catch(()=>{}));
-  }
+  (function(){
+    var pill = document.getElementById('offline-pill');
+    var pillText = document.getElementById('offline-pill-text');
+    if(!pill){
+      // Pill missing: still register the SW so offline works.
+      if('serviceWorker' in navigator){
+        window.addEventListener('load', function(){ navigator.serviceWorker.register('./sw.js').catch(function(){}); });
+      }
+      return;
+    }
+    var settled=false, fadeTimer=null, warnTimer=null;
+    function setState(state, msg, autoFade){
+      pill.classList.remove('state-prep','state-ready','state-warn','fade');
+      pill.classList.add('show','state-'+state);
+      pillText.textContent = msg;
+      if(fadeTimer){ clearTimeout(fadeTimer); fadeTimer=null; }
+      if(autoFade){
+        fadeTimer = setTimeout(function(){
+          pill.classList.add('fade');
+          setTimeout(function(){ pill.classList.remove('show'); }, 600);
+        }, 6000);
+      }
+    }
+    function ready(){
+      if(settled) return; settled=true;
+      if(warnTimer){ clearTimeout(warnTimer); warnTimer=null; }
+      setState('ready','Offline-ready \u2713 \u00b7 safe to disconnect', true);
+    }
+    function warn(){
+      if(settled) return;
+      setState('warn','Still caching \u2014 keep Wi-Fi on', false);
+    }
+    pill.addEventListener('click', function(){
+      pill.classList.add('fade');
+      setTimeout(function(){ pill.classList.remove('show'); }, 600);
+    });
+
+    if(!('serviceWorker' in navigator)){
+      setState('warn','Offline mode not supported here', false);
+      return;
+    }
+
+    function checkCacheStorage(){
+      if(!('caches' in window)) return;
+      caches.keys().then(function(names){
+        return Promise.all(names.map(function(n){
+          return caches.open(n).then(function(c){
+            return c.match('./index.html').then(function(m){ return !!m; }).catch(function(){ return false; });
+          });
+        }));
+      }).then(function(results){
+        if(results.some(Boolean)) ready();
+      }).catch(function(){});
+    }
+
+    setState('prep','Preparing offline copy\u2026', false);
+
+    navigator.serviceWorker.addEventListener('message', function(e){
+      if(e.data && e.data.type === 'CACHE_READY') ready();
+    });
+
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('./sw.js').then(function(){
+        if(navigator.serviceWorker.controller){
+          navigator.serviceWorker.controller.postMessage({ type:'CHECK_CACHE' });
+        }
+        checkCacheStorage();
+        setTimeout(checkCacheStorage, 1500);
+      }).catch(function(){ warn(); });
+      warnTimer = setTimeout(warn, 20000);
+    });
+  })();
   let deferred=null; const installBtn=document.getElementById('install');
   window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferred=e; installBtn.classList.add('show'); });
   installBtn.addEventListener('click', async e=>{
