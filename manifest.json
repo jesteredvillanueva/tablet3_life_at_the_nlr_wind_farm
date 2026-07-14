@@ -1,6 +1,6 @@
 {
-  "name": "Life at the NLR Wind Farm",
-  "short_name": "NLR Wind Farm",
+  "name": "Life at the Wind Farm",
+  "short_name": "Wind Farm",
   "description": "Meet the crew of the North Luzon Renewables wind farm! An interactive explorer game for the DOE Energy Museum.",
   "id": "./",
   "start_url": "./index.html",
