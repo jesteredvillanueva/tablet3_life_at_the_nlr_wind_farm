@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nlr-windfarm-v54';
+const CACHE_NAME = 'nlr-windfarm-v55';
 
 // Critical assets (offline breaks without them) vs optional (must not abort install).
 const CRITICAL_ASSETS = [

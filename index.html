@@ -221,7 +221,10 @@
     padding:.32em .85em;border-radius:999px;
     border:2px solid #fff;
     box-shadow:0 3px 7px rgba(0,0,0,.35);
-    z-index:3;pointer-events:none;
+    /* The tag lives inside the .walker <button>, so letting it take taps means
+       the name is just another hit area for the same button — identical chat,
+       walk animation and tap blip, no extra listener. */
+    z-index:3;pointer-events:auto;cursor:pointer;
   }
 
   /* ---------- Install button ---------- */
@@ -1063,6 +1066,12 @@
   }
 
   function sendToWork(w){
+    // Only one character on station at a time. Whoever is already out there
+    // walks back to their start spot (and re-locks their building) before this
+    // one activates. sendHome() no-ops on anyone who isn't active, and chat
+    // progress is already banked in `progress`, so nothing is lost.
+    walkers.forEach(o => { if(o !== w) sendHome(o); });
+
     w.classList.add('active');
     w.style.setProperty('--flip', w.dataset.flip);
     w.style.setProperty('--s', w.dataset.scale);
